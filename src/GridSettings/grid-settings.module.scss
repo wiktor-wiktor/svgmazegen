@@ -1,0 +1,40 @@
+.gridSettings {
+  padding: 2rem 0;
+
+  .gridContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    border-radius: 11px;
+  }
+
+  .grid {
+    --grid-cell-size: 12px;
+
+    display: inline-grid;
+    grid-template-columns: repeat(var(--grid-size-a), var(--grid-cell-size));
+    grid-auto-rows: var(--grid-cell-size);
+    grid-gap: 0;
+
+    margin: auto;
+    user-select: none;
+
+    .gridCell {
+      border: 1px solid #777;
+      background-color: transparent;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out;
+
+      &:hover {
+        background-color: #777;
+        transition: background-color 0s;
+      }
+
+      &.on {
+        background-color: #aaa;
+      }
+    }
+  }
+}
