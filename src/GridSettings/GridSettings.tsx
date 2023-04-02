@@ -1,5 +1,5 @@
 import { CSSProperties, useContext, useState } from "react";
-import { GridContext } from "../gridReducer";
+import { GridContext } from "../GridReducer";
 import styles from "./grid-settings.module.scss";
 
 export const GridSettings = () => {
@@ -16,11 +16,11 @@ export const GridSettings = () => {
     const y = i % gridContext.state.sizeA;
 
     gridContext.dispatch({
-      type: "SET_FIELD",
+      type: "SET_GRID_CELL",
       payload: {
         x,
         y,
-        value: !gridContext.state.cells[y][x],
+        value: !gridContext.state.gridCells[y][x],
       },
     });
   };
@@ -91,9 +91,9 @@ export const GridSettings = () => {
                     <div
                       key={`${i}-rect-grid`}
                       className={`${styles.gridCell} ${
-                        gridContext.state.cells[i % gridContext.state.sizeA][
-                          Math.floor(i / gridContext.state.sizeA)
-                        ]
+                        gridContext.state.gridCells[
+                          i % gridContext.state.sizeA
+                        ][Math.floor(i / gridContext.state.sizeA)]
                           ? styles.on
                           : styles.off
                       }`}

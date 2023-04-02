@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useReducer, Dispatch } from "react";
-import { Grid, GridTypes } from "./types";
+import { direction, Grid, GridTypes, mazeCell } from "./types";
 
 const initialGrid: Grid = {
   type: "rectangle",
   sizeA: 10,
   sizeB: 10,
-  cells: Array(10).fill(Array(10).fill(false)),
+  gridCells: Array(10).fill(Array(10).fill(false)),
+  paths: [],
 };
 
 export const GridContext = createContext<{
@@ -15,8 +16,6 @@ export const GridContext = createContext<{
 
 export const GridProvider = ({ children }: { children: ReactNode }) => {
   const [grid, dispatch] = useReducer(GridReducer, initialGrid);
-
-  console.log("grid", grid);
 
   return (
     <GridContext.Provider value={{ state: grid, dispatch }}>
@@ -28,7 +27,11 @@ export const GridProvider = ({ children }: { children: ReactNode }) => {
 export type GridAction =
   | { type: "SET_TYPE"; payload: GridTypes }
   | { type: "SET_SIZE"; payload: { a: number; b: number } }
-  | { type: "SET_FIELD"; payload: { x: number; y: number; value: boolean } };
+  | {
+      type: "SET_GRID_CELL";
+      payload: { x: number; y: number; value: boolean };
+    }
+  | { type: "SET_PATHS"; payload: mazeCell[][] };
 
 export const GridReducer = (state: Grid, action: GridAction): Grid => {
   switch (action.type) {
@@ -39,20 +42,25 @@ export const GridReducer = (state: Grid, action: GridAction): Grid => {
         ...state,
         sizeA: action.payload.a,
         sizeB: action.payload.b,
-        cells: Array(action.payload.a).fill(
+        gridCells: Array(action.payload.a).fill(
           Array(action.payload.b).fill(false)
         ),
       };
-    case "SET_FIELD":
+    case "SET_GRID_CELL":
       return {
         ...state,
-        cells: state.cells.map((row, y) =>
+        gridCells: state.gridCells.map((row, y) =>
           row.map((field, x) =>
             x === action.payload.x && y === action.payload.y
               ? action.payload.value
               : field
           )
         ),
+      };
+    case "SET_PATHS":
+      return {
+        ...state,
+        paths: action.payload,
       };
     default:
       return state;

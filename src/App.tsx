@@ -1,14 +1,15 @@
-import { useReducer } from "react";
 import { GridSettings } from "./GridSettings/GridSettings";
-import { GridProvider, GridReducer } from "./gridReducer";
+import { GridProvider } from "./GridReducer";
 import { Grid } from "./types";
 import "./App.css";
+import { MazeGenerator } from "./MazeGenerator/MazeGenerator";
 
 export const INITIAL_GRID: Grid = {
   type: "rectangle",
   sizeA: 10,
   sizeB: 10,
-  cells: Array(10).fill(Array(10).fill(false)),
+  gridCells: Array(10).fill(Array(10).fill(false)),
+  paths: [],
 };
 
 function App() {
@@ -20,7 +21,9 @@ function App() {
           <div className="tab left">
             <GridSettings />
           </div>
-          <div className="tab right"></div>
+          <div className="tab right">
+            <MazeGenerator />
+          </div>
         </div>
       </GridProvider>
     </div>

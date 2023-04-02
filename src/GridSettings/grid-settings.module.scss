@@ -11,7 +11,7 @@
   }
 
   .grid {
-    --grid-cell-size: 12px;
+    --grid-cell-size: 22px;
 
     display: inline-grid;
     grid-template-columns: repeat(var(--grid-size-a), var(--grid-cell-size));
