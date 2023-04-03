@@ -1,0 +1,25 @@
+.mazeView {
+  --base-time: .11s;
+  svg {
+    border: 1px solid #777;
+    transform: rotateX(45deg) rotateZ(-45deg);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease-in-out;
+
+
+    path {
+      stroke-dasharray: calc(var(--path-length) * 40px);
+      stroke-dashoffset: calc(var(--path-length) * 40px);
+      animation: dash calc(var(--path-length) * var(--base-time)) linear forwards;
+      animation-delay: calc(var(--animation-delay) * calc(var(--base-time) * 0.714));
+
+      position: relative;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  }
+}

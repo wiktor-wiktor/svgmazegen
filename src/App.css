@@ -19,6 +19,7 @@
 }
 
 .tab {
-  border: 1px solid hotpink;
   flex: 1;
+  border: 1px solid hotpink;
+  padding: 2rem 0;
 }

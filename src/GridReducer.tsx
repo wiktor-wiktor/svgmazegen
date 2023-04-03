@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useReducer, Dispatch } from "react";
-import { direction, Grid, GridTypes, mazeCell } from "./types";
+import { direction, Grid, GridTypes, mazeCell, path } from "./types";
 
 const initialGrid: Grid = {
   type: "rectangle",
@@ -31,7 +31,7 @@ export type GridAction =
       type: "SET_GRID_CELL";
       payload: { x: number; y: number; value: boolean };
     }
-  | { type: "SET_PATHS"; payload: mazeCell[][] };
+  | { type: "SET_PATHS"; payload: path[] };
 
 export const GridReducer = (state: Grid, action: GridAction): Grid => {
   switch (action.type) {

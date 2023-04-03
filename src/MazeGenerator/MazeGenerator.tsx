@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { GridContext } from "../GridReducer";
 import { MazeView } from "../MazeView/MazeView";
-import { direction, coord, mazeCell } from "../types";
+import { direction, coord, mazeCell, path } from "../types";
 
 export const MazeGenerator = () => {
   const gridContext = useContext(GridContext);
@@ -22,7 +22,7 @@ export const MazeGenerator = () => {
       Array.from({ length: gridContext.state.sizeA }).fill(false)
     ) as boolean[][];
     const stack: coord[] = [];
-    const paths: mazeCell[][] = [];
+    const paths: path[] = [];
 
     const getNeighbors = (coord: coord): coord[] => {
       const [x, y] = coord;
@@ -67,22 +67,26 @@ export const MazeGenerator = () => {
     };
 
     let current: coord = start;
-    let currentPath: mazeCell[] = [];
+    let currentPath: path = {
+      cells: [],
+      depth: 0,
+    };
     while (visitedCount < totalCells) {
       const unvisitedNeighbors = getUnvisitedNeighbors(current);
-      if (unvisitedNeighbors.length > 0) {
+      if (unvisitedNeighbors.length > 0 && currentPath.cells.length < 100) {
         const randomNeighbor =
           unvisitedNeighbors[
             Math.floor(Math.random() * unvisitedNeighbors.length)
           ];
-        if (currentPath.length === 0 && stack.length > 0) {
-          currentPath.push({
+        if (currentPath.cells.length === 0 && stack.length > 0) {
+          currentPath.cells.push({
             coords: stack[stack.length - 1],
             direction: getDirection(stack[stack.length - 1], current),
           });
+          currentPath.depth = stack.length;
         }
         stack.push(current);
-        currentPath.push({
+        currentPath.cells.push({
           coords: current,
           direction: getDirection(current, randomNeighbor),
         });
@@ -93,16 +97,16 @@ export const MazeGenerator = () => {
         current = randomNeighbor;
       } else {
         if (!visited[current[1]][current[0]]) {
-          currentPath.push({
+          currentPath.cells.push({
             coords: current,
             direction: getDirection(current, current),
           });
           visited[current[1]][current[0]] = true;
           visitedCount++;
-          paths.push(currentPath);
+          paths.push(JSON.parse(JSON.stringify(currentPath)));
         }
         current = stack.pop() as coord;
-        currentPath = [];
+        currentPath.cells = [];
       }
     }
 
@@ -110,6 +114,8 @@ export const MazeGenerator = () => {
       type: "SET_PATHS",
       payload: paths,
     });
+
+    console.log("-----", paths);
   };
 
   useEffect(() => {

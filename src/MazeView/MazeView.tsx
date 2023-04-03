@@ -1,10 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { CSSProperties, useContext, useEffect, useState } from "react";
 import { GridContext } from "../GridReducer";
-import { mazeCell } from "../types";
+import { mazeCell, path } from "../types";
+import styles from "./maze-view.module.scss";
 
-const CELL_SIZE = 40;
+const CELL_SIZE = 32;
+const STROKE_WIDTH = 7;
+const SVG_MARGIN = 40;
 
-export const MazeView = ({ paths }: { paths: mazeCell[][] }) => {
+export const MazeView = ({ paths }: { paths: path[] }) => {
   const getColorFromPathIndex = (index: number) => {
     const colors = [
       "red",
@@ -44,7 +47,7 @@ export const MazeView = ({ paths }: { paths: mazeCell[][] }) => {
       [key: string]: { color: string; direction: string };
     } = {};
     paths.forEach((path, i) => {
-      path.forEach((cell) => {
+      path.cells.forEach((cell) => {
         const [x, y] = cell.coords;
         newColoredMaze[`${x},${y}`] = {
           color: getColorFromPathIndex(i),
@@ -55,10 +58,16 @@ export const MazeView = ({ paths }: { paths: mazeCell[][] }) => {
     setColoredMaze(newColoredMaze);
   }, [paths]);
 
-  const getSVGPathFromPath = (path: mazeCell[], first: boolean): string => {
+  const getSVGPathFromPath = (
+    path: mazeCell[],
+    first: boolean,
+    level: number
+  ): string => {
     const cs = CELL_SIZE;
     const hcs = cs / 2;
-    let d = `M${path[0].coords[0] * cs + hcs},${path[0].coords[1] * cs + hcs}`;
+    let d = `M${path[0].coords[0] * cs + hcs - level * 3},${
+      path[0].coords[1] * cs + hcs + level * 3
+    }`;
 
     const [x0, y0] = path[0].coords;
     let beginningFragment = "";
@@ -147,10 +156,13 @@ export const MazeView = ({ paths }: { paths: mazeCell[][] }) => {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative" }} className={styles.mazeView}>
       <svg
-        width={gridContext.state.sizeA * CELL_SIZE}
-        height={gridContext.state.sizeB * CELL_SIZE}
+        width={gridContext.state.sizeA * CELL_SIZE + SVG_MARGIN * 2}
+        height={gridContext.state.sizeB * CELL_SIZE + SVG_MARGIN * 2}
+        viewBox={`-${SVG_MARGIN} -${SVG_MARGIN} ${
+          gridContext.state.sizeA * CELL_SIZE + SVG_MARGIN * 2
+        } ${gridContext.state.sizeB * CELL_SIZE + SVG_MARGIN * 2}`}
       >
         {Array.from(Array(gridContext.state.sizeA).keys()).map((x) =>
           Array.from(Array(gridContext.state.sizeB).keys()).map((y) => (
@@ -161,21 +173,113 @@ export const MazeView = ({ paths }: { paths: mazeCell[][] }) => {
               width={CELL_SIZE}
               height={CELL_SIZE}
               fill="#242424"
-              stroke="black"
+              stroke="#181818"
             />
           ))
         )}
-        {paths.map((path, i) => {
-          const [x, y] = path[0].coords;
+        {paths.reverse().map((path, i) => {
+          console.log(path);
+          const [x, y] = path.cells[0].coords;
+          const [x2, y2] = path.cells[path.cells.length - 1].coords;
           return (
             <>
               <path
-                key={`${simpleHash(path.toString())}${i}`}
-                d={getSVGPathFromPath(path, i === 0)}
+                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                d={getSVGPathFromPath(
+                  path.cells,
+                  i === 0,
+                  STROKE_WIDTH * 0.18 * 2
+                )}
                 fill="none"
-                stroke={coloredMaze[`${x},${y}`]?.color || "black"}
-                strokeWidth="8"
+                stroke="#555"
+                strokeWidth={STROKE_WIDTH}
                 strokeLinecap="round"
+                style={
+                  {
+                    "--path-length": path.cells.length,
+                    "--animation-delay": path.depth - 1, // should depend on the cell size,
+                    filter: "drop-shadow(0 0 0.1rem #000)",
+                  } as CSSProperties
+                }
+              />
+            </>
+          );
+        })}
+        {paths.map((path, i) => {
+          console.log(path);
+          const [x, y] = path.cells[0].coords;
+          const [x2, y2] = path.cells[path.cells.length - 1].coords;
+          return (
+            <>
+              <path
+                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                d={getSVGPathFromPath(path.cells, i === 0, STROKE_WIDTH * 0.18)}
+                fill="none"
+                stroke="#777"
+                strokeWidth={STROKE_WIDTH * 1.2}
+                strokeLinecap="round"
+                style={
+                  {
+                    "--path-length": path.cells.length,
+                    "--animation-delay": path.depth - 1,
+                  } as CSSProperties
+                }
+              />
+            </>
+          );
+        })}
+        {paths.map((path, i) => {
+          console.log(path);
+          const [x, y] = path.cells[0].coords;
+          const [x2, y2] = path.cells[path.cells.length - 1].coords;
+          return (
+            <>
+              <path
+                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                d={getSVGPathFromPath(path.cells, i === 0, 0)}
+                fill="none"
+                stroke="white"
+                strokeWidth={STROKE_WIDTH * 1.4}
+                strokeLinecap="round"
+                style={
+                  {
+                    "--path-length": path.cells.length,
+                    "--animation-delay": path.depth - 1,
+                  } as CSSProperties
+                }
+              />
+            </>
+          );
+        })}
+        {paths.map((path, i) => {
+          console.log(path);
+          const [x, y] = path.cells[0].coords;
+          const [x2, y2] = path.cells[path.cells.length - 1].coords;
+          return (
+            <>
+              <circle
+                key={`${simpleHash(JSON.stringify(path))}${i}2`}
+                cx={x * CELL_SIZE + CELL_SIZE / 2}
+                cy={y * CELL_SIZE + CELL_SIZE / 2}
+                r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                fill="hotpink"
+                style={{
+                  filter: "drop-shadow(10 5 0.1rem #000)",
+                  opacity: 0.8,
+                  zIndex: 100,
+                }}
+              />
+              <circle
+                key={`${simpleHash(JSON.stringify(path))}${i}3`}
+                cx={x2 * CELL_SIZE + CELL_SIZE / 2}
+                cy={y2 * CELL_SIZE + CELL_SIZE / 2}
+                r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                fill="hotpink"
+                style={{
+                  filter: "drop-shadow(10 5 0.1rem #000)",
+                  opacity: 0.8,
+                  zIndex: 100,
+                }}
               />
             </>
           );

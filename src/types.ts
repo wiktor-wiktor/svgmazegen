@@ -6,10 +6,15 @@ export type mazeCell = {
   direction: direction;
 };
 
+export type path = {
+  cells: mazeCell[];
+  depth: number;
+};
+
 export type Grid = {
   type: GridTypes;
   sizeA: number;
   sizeB: number;
   gridCells: boolean[][]; // true = field, false = wall
-  paths: mazeCell[][];
+  paths: path[];
 };
