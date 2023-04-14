@@ -262,24 +262,34 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
                 cx={x * CELL_SIZE + CELL_SIZE / 2}
                 cy={y * CELL_SIZE + CELL_SIZE / 2}
                 r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
-                fill="hotpink"
-                style={{
-                  filter: "drop-shadow(10 5 0.1rem #000)",
-                  opacity: 0.8,
-                  zIndex: 100,
-                }}
+                style={
+                  {
+                    filter: "drop-shadow(10 5 0.1rem #000)",
+                    opacity: 0.8,
+                    zIndex: 100,
+                    "--cell-size": CELL_SIZE,
+                    "--stroke-width": STROKE_WIDTH,
+                    "--disstance-from-path-beginning": 0,
+                    "--animation-delay": path.depth - 1,
+                  } as CSSProperties
+                }
               />
               <circle
                 key={`${simpleHash(JSON.stringify(path))}${i}3`}
                 cx={x2 * CELL_SIZE + CELL_SIZE / 2}
                 cy={y2 * CELL_SIZE + CELL_SIZE / 2}
                 r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
-                fill="hotpink"
-                style={{
-                  filter: "drop-shadow(10 5 0.1rem #000)",
-                  opacity: 0.8,
-                  zIndex: 100,
-                }}
+                style={
+                  {
+                    filter: "drop-shadow(10 5 0.1rem #000)",
+                    opacity: 0.8,
+                    zIndex: 100,
+                    "--cell-size": CELL_SIZE,
+                    "--stroke-width": STROKE_WIDTH,
+                    "--disstance-from-path-beginning": path.cells.length,
+                    "--animation-delay": path.depth - 1,
+                  } as CSSProperties
+                }
               />
             </>
           );
