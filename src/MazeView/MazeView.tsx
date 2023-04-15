@@ -7,32 +7,44 @@ const CELL_SIZE = 32;
 const STROKE_WIDTH = 7;
 const SVG_MARGIN = 40;
 
-export const MazeView = ({ paths }: { paths: path[] }) => {
-  const getColorFromPathIndex = (index: number) => {
-    const colors = [
-      "red",
-      "orange",
-      "yellow",
-      "green",
-      "blue",
-      "indigo",
-      "violet",
-      "pink",
-      "black",
-      "gray",
-      "brown",
-      "purple",
-      "cyan",
-      "magenta",
-      "lime",
-      "maroon",
-      "navy",
-      "olive",
-      "teal",
-    ];
-    return colors[index % colors.length];
-  };
+interface MazeViewProps {
+  paths: path[];
+  currentPath: number;
+  completedPaths: number[];
+  handlePathBeginingNodeClick: (pathId: number) => void;
+}
 
+const getColorFromPathIndex = (index: number) => {
+  const colors = [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue",
+    "indigo",
+    "violet",
+    "pink",
+    "black",
+    "gray",
+    "brown",
+    "purple",
+    "cyan",
+    "magenta",
+    "lime",
+    "maroon",
+    "navy",
+    "olive",
+    "teal",
+  ];
+  return colors[index % colors.length];
+};
+
+export const MazeView = ({
+  paths,
+  currentPath,
+  completedPaths,
+  handlePathBeginingNodeClick,
+}: MazeViewProps) => {
   const [coloredMaze, setColoredMaze] = useState<{
     [key: string]: {
       color: string;
@@ -42,7 +54,6 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
   const gridContext = useContext(GridContext);
 
   useEffect(() => {
-    console.log("+ paths", paths);
     const newColoredMaze: {
       [key: string]: { color: string; direction: string };
     } = {};
@@ -147,14 +158,6 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
     return d;
   };
 
-  const simpleHash = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return hash;
-  };
-
   return (
     <div style={{ position: "relative" }} className={styles.mazeView}>
       <svg
@@ -164,6 +167,7 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
           gridContext.state.sizeA * CELL_SIZE + SVG_MARGIN * 2
         } ${gridContext.state.sizeB * CELL_SIZE + SVG_MARGIN * 2}`}
       >
+        {/* square grid */}
         {Array.from(Array(gridContext.state.sizeA).keys()).map((x) =>
           Array.from(Array(gridContext.state.sizeB).keys()).map((y) => (
             <rect
@@ -177,14 +181,15 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
             />
           ))
         )}
+
+        {/* ternary path line */}
         {paths.reverse().map((path, i) => {
-          console.log(path);
           const [x, y] = path.cells[0].coords;
           const [x2, y2] = path.cells[path.cells.length - 1].coords;
           return (
             <>
               <path
-                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                key={`${path.id}${i}1`}
                 d={getSVGPathFromPath(
                   path.cells,
                   i === 0,
@@ -194,6 +199,11 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
                 stroke="#555"
                 strokeWidth={STROKE_WIDTH}
                 strokeLinecap="round"
+                className={[
+                  styles.path,
+                  currentPath === path.id ? styles.current : "",
+                  completedPaths.includes(path.id) ? styles.completed : "",
+                ].join(" ")}
                 style={
                   {
                     "--path-length": path.cells.length,
@@ -205,19 +215,25 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
             </>
           );
         })}
+
+        {/* secondary path line */}
         {paths.map((path, i) => {
-          console.log(path);
           const [x, y] = path.cells[0].coords;
           const [x2, y2] = path.cells[path.cells.length - 1].coords;
           return (
             <>
               <path
-                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                key={`${path.id}${i}2`}
                 d={getSVGPathFromPath(path.cells, i === 0, STROKE_WIDTH * 0.18)}
                 fill="none"
                 stroke="#777"
                 strokeWidth={STROKE_WIDTH * 1.2}
                 strokeLinecap="round"
+                className={[
+                  styles.path,
+                  currentPath === path.id ? styles.current : "",
+                  completedPaths.includes(path.id) ? styles.completed : "",
+                ].join(" ")}
                 style={
                   {
                     "--path-length": path.cells.length,
@@ -228,19 +244,25 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
             </>
           );
         })}
+
+        {/* main path line */}
         {paths.map((path, i) => {
-          console.log(path);
           const [x, y] = path.cells[0].coords;
           const [x2, y2] = path.cells[path.cells.length - 1].coords;
           return (
             <>
               <path
-                key={`${simpleHash(JSON.stringify(path))}${i}1`}
+                key={`${path.id}${i}3`}
                 d={getSVGPathFromPath(path.cells, i === 0, 0)}
                 fill="none"
                 stroke="white"
                 strokeWidth={STROKE_WIDTH * 1.4}
                 strokeLinecap="round"
+                className={[
+                  styles.path,
+                  currentPath === path.id ? styles.current : "",
+                  completedPaths.includes(path.id) ? styles.completed : "",
+                ].join(" ")}
                 style={
                   {
                     "--path-length": path.cells.length,
@@ -251,21 +273,32 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
             </>
           );
         })}
+
         {paths.map((path, i) => {
-          console.log(path);
           const [x, y] = path.cells[0].coords;
           const [x2, y2] = path.cells[path.cells.length - 1].coords;
           return (
             <>
+              {/* path starting point */}
               <circle
-                key={`${simpleHash(JSON.stringify(path))}${i}2`}
+                key={`${path.id}${i}4`}
                 cx={x * CELL_SIZE + CELL_SIZE / 2}
                 cy={y * CELL_SIZE + CELL_SIZE / 2}
                 r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                className={[
+                  styles.node,
+                  styles.starting,
+                  currentPath === path.id ? styles.current : "",
+                  completedPaths.includes(path.id) ? styles.completed : "",
+                ].join(" ")}
+                onPointerDown={() => {
+                  if (completedPaths.includes(path.id)) {
+                    handlePathBeginingNodeClick(path.id);
+                  }
+                }}
                 style={
                   {
                     filter: "drop-shadow(10 5 0.1rem #000)",
-                    opacity: 0.8,
                     zIndex: 100,
                     "--cell-size": CELL_SIZE,
                     "--stroke-width": STROKE_WIDTH,
@@ -274,15 +307,20 @@ export const MazeView = ({ paths }: { paths: path[] }) => {
                   } as CSSProperties
                 }
               />
+              {/* path ending point */}
               <circle
-                key={`${simpleHash(JSON.stringify(path))}${i}3`}
+                key={`${path.id}${i}5`}
                 cx={x2 * CELL_SIZE + CELL_SIZE / 2}
                 cy={y2 * CELL_SIZE + CELL_SIZE / 2}
                 r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                className={[
+                  styles.node,
+                  styles.ending,
+                  completedPaths.includes(path.id) ? styles.completed : "",
+                ].join(" ")}
                 style={
                   {
                     filter: "drop-shadow(10 5 0.1rem #000)",
-                    opacity: 0.8,
                     zIndex: 100,
                     "--cell-size": CELL_SIZE,
                     "--stroke-width": STROKE_WIDTH,

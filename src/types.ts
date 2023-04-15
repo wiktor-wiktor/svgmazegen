@@ -4,11 +4,13 @@ export type coord = [number, number];
 export type mazeCell = {
   coords: coord;
   direction: direction;
+  parentPath: number; // id of the path
 };
 
 export type path = {
   cells: mazeCell[];
   depth: number;
+  id: number;
 };
 
 export type Grid = {

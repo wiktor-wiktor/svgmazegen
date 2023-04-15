@@ -11,27 +11,41 @@
     path {
       stroke-dasharray: calc(var(--path-length) * 40px);
       stroke-dashoffset: calc(var(--path-length) * 40px);
-      animation: dash calc(var(--path-length) * var(--base-time)) linear forwards;
-      animation-delay: calc(var(--animation-delay) * calc(var(--base-time) * 0.714));
+      
+      // animation: dash calc(var(--path-length) * var(--base-time)) linear forwards;
+      // animation-delay: calc(var(--animation-delay) * calc(var(--base-time) * 0.714));
+
+      &.completed {
+        animation: dash calc(var(--path-length) * var(--base-time)) linear forwards;
+      }
+      
+      &.current {
+        //animation: dash 23s linear infinite;
+        stroke: hsla(330, 100%, 71%, .77);
+        stroke: white;
+        stroke-width: 2px;
+        // stroke-dasharray: 40px;
+        //transition: stroke .23s, stroke-width .23s;
+      }
 
       position: relative;
     }
 
     circle {
-      animation: appear .7s linear forwards;
-      animation-delay: calc(var(--animation-delay) * calc(var(--base-time) * 0.714) + calc(var(--disstance-from-path-beginning) * var(--base-time) - 0.7s) );
-      opacity: 0;
-      transform: scale(0);
-      transition: fill .3s;
-      fill: hotpink;
-      .visited {
-        fill: rgb(105, 105, 255);
+      // animation: appear .7s linear forwards;
+      // animation-delay: calc(var(--animation-delay) * calc(var(--base-time) * 0.714) + calc(var(--disstance-from-path-beginning) * var(--base-time) - 0.7s) );
+      // opacity: 0;
+      // transform: scale(0);
+      transition: fill .11s;
+      fill: hsla(0, 0%, 50%, .11);
+      &.completed {
+        fill: hsla(240, 100%, 71%, .42);
       }
-      .pulsating, &:hover {
+      &.current.completed, .completed:hover {
         fill: hotpink;
-        animation: appear .7s linear forwards, pulsate 1.4s ease-in-out infinite;
+        animation: pulsate 1.4s ease-in-out infinite;
       }
-      .active {
+      &.completed.ending {
         fill: gold;
       }
     }

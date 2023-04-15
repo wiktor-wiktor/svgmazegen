@@ -1,11 +1,11 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { GridContext } from "../GridReducer";
 import { MazeView } from "../MazeView/MazeView";
 import { direction, coord, mazeCell, path } from "../types";
+import { pathsToGraph } from "../helpers";
 
 export const MazeGenerator = () => {
   const gridContext = useContext(GridContext);
-  const branches: coord[][] = [];
 
   const generate = () => {
     const start: coord = [0, 0];
@@ -70,36 +70,45 @@ export const MazeGenerator = () => {
     let currentPath: path = {
       cells: [],
       depth: 0,
+      id: 0,
     };
     while (visitedCount < totalCells) {
       const unvisitedNeighbors = getUnvisitedNeighbors(current);
       if (unvisitedNeighbors.length > 0 && currentPath.cells.length < 100) {
+        // continue down branch
         const randomNeighbor =
           unvisitedNeighbors[
             Math.floor(Math.random() * unvisitedNeighbors.length)
           ];
         if (currentPath.cells.length === 0 && stack.length > 0) {
+          // start of new branch
           currentPath.cells.push({
             coords: stack[stack.length - 1],
             direction: getDirection(stack[stack.length - 1], current),
+            parentPath: currentPath.id,
           });
           currentPath.depth = stack.length;
+          currentPath.id += 1;
         }
         stack.push(current);
         currentPath.cells.push({
           coords: current,
           direction: getDirection(current, randomNeighbor),
+          parentPath: currentPath.id,
         });
         if (!visited[current[1]][current[0]]) {
+          // only add to visited if it's not already there
           visited[current[1]][current[0]] = true;
           visitedCount++;
         }
         current = randomNeighbor;
       } else {
+        // backtracking to branch off
         if (!visited[current[1]][current[0]]) {
           currentPath.cells.push({
             coords: current,
             direction: getDirection(current, current),
+            parentPath: currentPath.id,
           });
           visited[current[1]][current[0]] = true;
           visitedCount++;
@@ -110,22 +119,43 @@ export const MazeGenerator = () => {
       }
     }
 
+    pathsToGraph(paths, gridContext.state.sizeA, gridContext.state.sizeB);
+
     gridContext.dispatch({
       type: "SET_PATHS",
       payload: paths,
     });
-
-    console.log("-----", paths);
   };
 
   useEffect(() => {
     generate();
   }, []);
 
+  const [completedPaths, setCompletedPaths] = useState<number[]>([]);
+  const [currentPath, setCurrentPath] = useState<number>(0);
+
+  const handlePathBeginingNodeClick = (pathId: number) => {
+    console.log(pathId);
+    setCurrentPath(pathId);
+  };
+
   return (
     <div>
       <button onClick={generate}>Generate</button>
-      <MazeView paths={gridContext.state.paths} />
+      <MazeView
+        paths={gridContext.state.paths}
+        currentPath={currentPath}
+        completedPaths={completedPaths}
+        handlePathBeginingNodeClick={handlePathBeginingNodeClick}
+      />
+      <button
+        onClick={() => {
+          setCompletedPaths([...completedPaths, completedPaths.length]);
+          setCurrentPath(currentPath + 1);
+        }}
+      >
+        Next path
+      </button>
     </div>
   );
 };
