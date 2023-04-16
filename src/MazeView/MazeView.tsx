@@ -3,8 +3,8 @@ import { GridContext } from "../GridReducer";
 import { mazeCell, path } from "../types";
 import styles from "./maze-view.module.scss";
 
-const CELL_SIZE = 32;
-const STROKE_WIDTH = 7;
+const CELL_SIZE = 64;
+const STROKE_WIDTH = 8;
 const SVG_MARGIN = 40;
 
 interface MazeViewProps {
@@ -97,7 +97,7 @@ export const MazeView = ({
         break;
     }
 
-    if (first) {
+    if (true) {
       d += beginningFragment;
     } else {
       d += beginningFragment.replace("l", "m");
@@ -177,7 +177,7 @@ export const MazeView = ({
               width={CELL_SIZE}
               height={CELL_SIZE}
               fill="#242424"
-              stroke="#181818"
+              stroke="#ababab"
             />
           ))
         )}
@@ -206,6 +206,7 @@ export const MazeView = ({
                 ].join(" ")}
                 style={
                   {
+                    "--cell-size": CELL_SIZE,
                     "--path-length": path.cells.length,
                     "--animation-delay": path.depth - 1, // should depend on the cell size,
                     filter: "drop-shadow(0 0 0.1rem #000)",
@@ -236,6 +237,7 @@ export const MazeView = ({
                 ].join(" ")}
                 style={
                   {
+                    "--cell-size": CELL_SIZE,
                     "--path-length": path.cells.length,
                     "--animation-delay": path.depth - 1,
                   } as CSSProperties
@@ -265,6 +267,7 @@ export const MazeView = ({
                 ].join(" ")}
                 style={
                   {
+                    "--cell-size": CELL_SIZE,
                     "--path-length": path.cells.length,
                     "--animation-delay": path.depth - 1,
                   } as CSSProperties
@@ -284,7 +287,7 @@ export const MazeView = ({
                 key={`${path.id}${i}4`}
                 cx={x * CELL_SIZE + CELL_SIZE / 2}
                 cy={y * CELL_SIZE + CELL_SIZE / 2}
-                r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                r={STROKE_WIDTH * 1.4}
                 className={[
                   styles.node,
                   styles.starting,
@@ -312,10 +315,12 @@ export const MazeView = ({
                 key={`${path.id}${i}5`}
                 cx={x2 * CELL_SIZE + CELL_SIZE / 2}
                 cy={y2 * CELL_SIZE + CELL_SIZE / 2}
-                r={CELL_SIZE / 1.3 - STROKE_WIDTH * 1.4}
+                r={STROKE_WIDTH * 1.4}
                 className={[
                   styles.node,
-                  styles.ending,
+                  path.cells[path.cells.length - 1].isEnding
+                    ? styles.ending
+                    : "",
                   completedPaths.includes(path.id) ? styles.completed : "",
                 ].join(" ")}
                 style={

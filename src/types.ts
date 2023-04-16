@@ -5,6 +5,7 @@ export type mazeCell = {
   coords: coord;
   direction: direction;
   parentPath: number; // id of the path
+  isEnding?: boolean;
 };
 
 export type path = {

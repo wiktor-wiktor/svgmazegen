@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { GridContext } from "../GridReducer";
 import { MazeView } from "../MazeView/MazeView";
 import { direction, coord, mazeCell, path } from "../types";
-import { pathsToGraph } from "../helpers";
+import { getDirection, graphToGraphPaths, pathsToGraph } from "../helpers";
 
 export const MazeGenerator = () => {
   const gridContext = useContext(GridContext);
@@ -49,23 +49,6 @@ export const MazeGenerator = () => {
       return neighbors.filter((neighbor) => !visited[neighbor[1]][neighbor[0]]);
     };
 
-    const getDirection = (current: coord, next: coord): direction => {
-      const [x1, y1] = current;
-      const [x2, y2] = next;
-
-      if (x1 < x2) {
-        return "right";
-      } else if (x1 > x2) {
-        return "left";
-      } else if (y1 < y2) {
-        return "down";
-      } else if (y1 > y2) {
-        return "up";
-      } else {
-        return "none";
-      }
-    };
-
     let current: coord = start;
     let currentPath: path = {
       cells: [],
@@ -74,7 +57,7 @@ export const MazeGenerator = () => {
     };
     while (visitedCount < totalCells) {
       const unvisitedNeighbors = getUnvisitedNeighbors(current);
-      if (unvisitedNeighbors.length > 0 && currentPath.cells.length < 100) {
+      if (unvisitedNeighbors.length > 0 && currentPath.cells.length < 9) {
         // continue down branch
         const randomNeighbor =
           unvisitedNeighbors[
@@ -118,12 +101,14 @@ export const MazeGenerator = () => {
         currentPath.cells = [];
       }
     }
-
-    pathsToGraph(paths, gridContext.state.sizeA, gridContext.state.sizeB);
+    console.log(paths);
+    const graphPaths = graphToGraphPaths(
+      pathsToGraph(paths, gridContext.state.sizeA, gridContext.state.sizeB)
+    );
 
     gridContext.dispatch({
       type: "SET_PATHS",
-      payload: paths,
+      payload: graphPaths,
     });
   };
 
@@ -141,7 +126,15 @@ export const MazeGenerator = () => {
 
   return (
     <div>
-      <button onClick={generate}>Generate</button>
+      <button
+        onClick={() => {
+          generate();
+          setCompletedPaths([]);
+          setCurrentPath(0);
+        }}
+      >
+        Generate
+      </button>
       <MazeView
         paths={gridContext.state.paths}
         currentPath={currentPath}
